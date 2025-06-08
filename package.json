@@ -1,0 +1,27 @@
+{
+  "name": "part3",
+  "version": "1.0.0",
+  "description": "Full Stack Open exercise",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vixito/part3.git"
+  },
+  "author": "Vixis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vixito/part3/issues"
+  },
+  "homepage": "https://github.com/Vixito/part3#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
