@@ -3,8 +3,9 @@ const morgan = require('morgan');
 const app = express();
 const cors = require('cors');
 app.use(cors());
-
 app.use(express.json());
+app.use(express.static('dist'));
+
 morgan.token('body', (req) => req.method === 'POST' ? JSON.stringify(req.body) : '');
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
 
@@ -30,10 +31,6 @@ const persons = [
       "number": "39-23-6423122"
     }
 ];
-
-app.get('/', (req, res) => {
-  res.send('Phonebook backend is running!');
-});
 
 app.get('/api/persons', (req, res) => {
   res.json(persons);
