@@ -31,6 +31,10 @@ const persons = [
     }
 ];
 
+app.get('/', (req, res) => {
+  res.send('Phonebook backend is running!');
+});
+
 app.get('/api/persons', (req, res) => {
   res.json(persons);
 });
