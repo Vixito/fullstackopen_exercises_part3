@@ -10,22 +10,17 @@ morgan.token('body', (req) => req.method === 'POST' ? JSON.stringify(req.body) :
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
 const Person = require('./models/persons');
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
   Person.find({}).then(persons => {
     res.json(persons);
-  }).catch(err => {
-    console.error('Error fetching persons:', err);
-    res.status(500).send('Internal Server Error');
-  });
+  }).catch(err => next(err));
 });
-
 app.get('/info', (req, res) => {
   const date = new Date();
     const info = `<p>Phonebook has info for ${persons.length} people</p>
                     <p>${date}</p>`;
     res.send(info);
 });
-
 app.get('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id);
   const person = persons.find(p => p.id === id);
@@ -35,8 +30,7 @@ app.get('/api/persons/:id', (req, res) => {
     res.status(404).end();
   }
 });
-
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
     .then(deletedPerson => {
       if (deletedPerson) {
@@ -45,13 +39,9 @@ app.delete('/api/persons/:id', (req, res) => {
         res.status(404).send({ error: 'Person not found' });
       }
     })
-    .catch(err => {
-      console.error('Error deleting person:', err);
-      res.status(500).send('Internal Server Error');
-    });
+    .catch(err => next(err));
 });
-
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body;
   if (!body.name || !body.number) {
     return res.status(400).json({ error: 'name or number missing' });
@@ -65,10 +55,18 @@ app.post('/api/persons', (req, res) => {
     .then(savedPerson => {
       res.status(201).json(savedPerson);
     })
-    .catch(err => {
-      console.error('Error saving person:', err);
-      res.status(500).send('Internal Server Error');
-    });
+    .catch(err => next(err));
+});
+
+// Middleware de manejo de errores
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  if (err.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id' });
+  } else if (err.name === 'ValidationError') {
+    return res.status(400).json({ error: err.message });
+  }
+  next(err);
 });
 
 const PORT = process.env.PORT || 3001;
