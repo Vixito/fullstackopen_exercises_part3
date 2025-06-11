@@ -13,8 +13,15 @@ mongoose.connect(url)
   
 // Define the Person schema and model
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String
+  name: {
+    type: String,
+    minlength: [3, 'Name must be at least 3 characters long'],
+    required: true
+  },
+  number: {
+    type: String,
+    required: true
+  }
 });
 personSchema.set('toJSON', {
   transform: (document, returnedObject) => {
