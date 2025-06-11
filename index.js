@@ -37,14 +37,18 @@ app.get('/api/persons/:id', (req, res) => {
 });
 
 app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const personIndex = persons.findIndex(p => p.id === id);
-  if (personIndex !== -1) {
-    persons.splice(personIndex, 1);
-    res.status(204).end();
-  } else {
-    res.status(404).end();
-  }
+  Person.findByIdAndDelete(req.params.id)
+    .then(deletedPerson => {
+      if (deletedPerson) {
+        res.status(204).end();
+      } else {
+        res.status(404).send({ error: 'Person not found' });
+      }
+    })
+    .catch(err => {
+      console.error('Error deleting person:', err);
+      res.status(500).send('Internal Server Error');
+    });
 });
 
 app.post('/api/persons', (req, res) => {
