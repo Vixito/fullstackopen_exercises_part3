@@ -8,48 +8,7 @@ app.use(express.json());
 app.use(express.static('dist'));
 morgan.token('body', (req) => req.method === 'POST' ? JSON.stringify(req.body) : '');
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
-
-// MongoDB connection setup
-const mongoose = require('mongoose');
-const password = process.argv[2];
-const url = process.env.MONGODB_URI;
-mongoose.set('strictQuery', false);
-mongoose.connect(url)
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch(err => {
-    console.error('Error connecting to MongoDB:', err.message);
-  });
-// Define the Person schema and model
-const personSchema = new mongoose.Schema({
-  name: String,
-  number: String
-});
-const Person = mongoose.model('Person', personSchema);
-
-const persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-];
+const Person = require('./models/persons');
 
 app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => {
@@ -93,16 +52,19 @@ app.post('/api/persons', (req, res) => {
   if (!body.name || !body.number) {
     return res.status(400).json({ error: 'name or number missing' });
   }
-  if (persons.some(p => p.name === body.name)) {
-    return res.status(400).json({ error: 'name must be unique' });
-  }
-  const newPerson = {
-    id: Math.floor(Math.random() * 10000), // Simple ID generation
+  const person = new Person({
     name: body.name,
-    number: body.number
-  };
-  persons.push(newPerson);
-  res.status(201).json(newPerson);
+    number: body.number,
+  });
+
+  person.save()
+    .then(savedPerson => {
+      res.status(201).json(savedPerson);
+    })
+    .catch(err => {
+      console.error('Error saving person:', err);
+      res.status(500).send('Internal Server Error');
+    });
 });
 
 const PORT = process.env.PORT || 3001;

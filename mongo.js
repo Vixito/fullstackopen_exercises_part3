@@ -1,3 +1,4 @@
+// Archivo para tests
 const mongoose = require('mongoose')
 
 if (process.argv.length<3) {
