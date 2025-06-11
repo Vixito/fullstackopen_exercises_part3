@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
 const app = express();
@@ -5,9 +6,27 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json());
 app.use(express.static('dist'));
-
 morgan.token('body', (req) => req.method === 'POST' ? JSON.stringify(req.body) : '');
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
+
+// MongoDB connection setup
+const mongoose = require('mongoose');
+const password = process.argv[2];
+const url = process.env.MONGODB_URI;
+mongoose.set('strictQuery', false);
+mongoose.connect(url)
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch(err => {
+    console.error('Error connecting to MongoDB:', err.message);
+  });
+// Define the Person schema and model
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String
+});
+const Person = mongoose.model('Person', personSchema);
 
 const persons = [
     { 
@@ -33,7 +52,12 @@ const persons = [
 ];
 
 app.get('/api/persons', (req, res) => {
-  res.json(persons);
+  Person.find({}).then(persons => {
+    res.json(persons);
+  }).catch(err => {
+    console.error('Error fetching persons:', err);
+    res.status(500).send('Internal Server Error');
+  });
 });
 
 app.get('/info', (req, res) => {
