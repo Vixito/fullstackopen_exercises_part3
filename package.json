@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Vixito/part3.git"
+    "url": "git+https://github.com/Vixito/fullstackopen_exercises_part3.git"
   },
   "author": "Vixis",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Vixito/part3/issues"
+    "url": "https://github.com/Vixito/fullstackopen_exercises_part3/issues"
   },
-  "homepage": "https://github.com/Vixito/part3#readme",
+  "homepage": "https://github.com/Vixito/fullstackopen_exercises_part3#readme",
   "devDependencies": {
     "nodemon": "^3.1.10"
   },
