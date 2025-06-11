@@ -10,25 +10,30 @@ morgan.token('body', (req) => req.method === 'POST' ? JSON.stringify(req.body) :
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
 const Person = require('./models/persons');
 
+// Endpoints
 app.get('/api/persons', (req, res, next) => {
   Person.find({}).then(persons => {
     res.json(persons);
   }).catch(err => next(err));
 });
-app.get('/info', (req, res) => {
-  const date = new Date();
-    const info = `<p>Phonebook has info for ${persons.length} people</p>
-                    <p>${date}</p>`;
-    res.send(info);
+app.get('/info', (req, res, next) => {
+  Person.countDocuments({})
+    .then(count => {
+      const date = new Date();
+      res.send(`<p>Phonebook has info for ${count} people</p><p>${date}</p>`);
+    })
+    .catch(err => next(err));
 });
-app.get('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find(p => p.id === id);
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).end();
-  }
+app.get('/api/persons/:id', (req, res, next) => {
+  Person.findById(req.params.id)
+    .then(person => {
+      if (person) {
+        res.json(person);
+      } else {
+        res.status(404).send({ error: 'Person not found' });
+      }
+    })
+    .catch(err => next(err));
 });
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
@@ -92,7 +97,7 @@ app.use((err, req, res, next) => {
   } else if (err.name === 'ValidationError') {
     return res.status(400).json({ error: err.message });
   }
-  next(err);
+  res.status(500).json({ error: 'internal server error' });
 });
 
 const PORT = process.env.PORT || 3001;
