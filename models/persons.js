@@ -1,16 +1,16 @@
 // MongoDB connection setup
-const mongoose = require('mongoose');
-const password = process.argv[2];
-const url = process.env.MONGODB_URI;
-mongoose.set('strictQuery', false);
+const mongoose = require('mongoose')
+const password = process.argv[2]
+const url = process.env.MONGODB_URI
+mongoose.set('strictQuery', false)
 mongoose.connect(url)
   .then(() => {
-    console.log('Connected to MongoDB');
+    console.log('Connected to MongoDB')
   })
   .catch(err => {
-    console.error('Error connecting to MongoDB:', err.message);
-  });
-  
+    console.error('Error connecting to MongoDB:', err.message)
+  })
+
 // Define the Person schema and model
 const personSchema = new mongoose.Schema({
   name: {
@@ -24,12 +24,12 @@ const personSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: function(v) {
-        return /^\d{2,3}-\d+$/.test(v); // Debe tener el formato XX-XXXXXXX o XXX-XXXXXXXX
+        return /^\d{2,3}-\d+$/.test(v) // Debe tener el formato XX-XXXXXXX o XXX-XXXXXXXX
       },
       message: props => `${props.value} is not a valid phone number! Format must be XX-XXXXXXX or XXX-XXXXXXXX`
     }
   }
-});
+})
 personSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()
